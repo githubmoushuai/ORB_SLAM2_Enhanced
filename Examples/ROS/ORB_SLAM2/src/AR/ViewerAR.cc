@@ -94,6 +94,8 @@ void ViewerAR::Run()
     pangolin::Var<float> menu_sizegrid("menu. Element Size",0.05,0.01,0.3);
     pangolin::Var<bool> menu_drawpoints("menu.Draw Points",false,true);
 
+    //pangolin::Var<bool> menu_LocalizationMode("menu.Localization Mode",true,true);  //第一个参数是默认值，第二个是是否有选择框
+    
     pangolin::Var<bool> menu_LocalizationMode("menu.Localization Mode",false,true);
     bool bLocalizationMode = false;
 

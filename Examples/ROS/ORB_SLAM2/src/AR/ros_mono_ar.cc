@@ -34,6 +34,13 @@
 
 #include"ViewerAR.h"
 
+#include "TCPServer.h"
+#include <strstream>
+std::strstream ss;
+std::string res;
+
+
+TCPServer tcp;
 using namespace std;
 
 
@@ -53,21 +60,40 @@ public:
 
     ORB_SLAM2::System* mpSLAM;
 };
-
+void * loop(void * m)
+{
+        pthread_detach(pthread_self());
+	while(1)
+	{
+		
+		string str = tcp.getMessage();
+		if( str != "" )
+		{
+			cout << "Message:" << str << endl;
+		}
+		usleep(1000);
+	}
+	tcp.detach();
+}
 int main(int argc, char **argv)
 {
     ros::init(argc, argv, "Mono");
     ros::start();
 
-    if(argc != 3)
+    if(argc != 4)
     {
         cerr << endl << "Usage: rosrun ORB_SLAM2 Mono path_to_vocabulary path_to_settings" << endl;        
         ros::shutdown();
         return 1;
     }
+    bool save=false;
+    if(strcmp(argv[3],"true")==0)
+    {
+        save=true;
+    }
 
     // Create SLAM system. It initializes all system threads and gets ready to process frames.
-    ORB_SLAM2::System SLAM(argv[1],argv[2],ORB_SLAM2::System::MONOCULAR,false);
+    ORB_SLAM2::System SLAM(argv[1],argv[2],ORB_SLAM2::System::MONOCULAR,false,save);
 
 
     cout << endl << endl;
@@ -85,9 +111,10 @@ int main(int argc, char **argv)
     viewerAR.SetSLAM(&SLAM);
 
     ImageGrabber igb(&SLAM);
-
+    tcp.setup(8088);
+    
     ros::NodeHandle nodeHandler;
-    ros::Subscriber sub = nodeHandler.subscribe("/camera/image_raw", 1, &ImageGrabber::GrabImage,&igb);
+    ros::Subscriber sub = nodeHandler.subscribe("/camera/image_raw1", 1, &ImageGrabber::GrabImage,&igb);
 
 
     cv::FileStorage fSettings(argv[2], cv::FileStorage::READ);
@@ -121,7 +148,10 @@ int main(int argc, char **argv)
     }
 
     thread tViewer = thread(&ORB_SLAM2::ViewerAR::Run,&viewerAR);
-
+ 
+	
+	thread receiver=thread(&TCPServer::receive,&tcp);
+	
     ros::spin();
 
     // Stop all threads
@@ -151,10 +181,31 @@ void ImageGrabber::GrabImage(const sensor_msgs::ImageConstPtr& msg)
     cv::Mat im = cv_ptr->image.clone();
     cv::Mat imu;
     cv::Mat Tcw = mpSLAM->TrackMonocular(cv_ptr->image,cv_ptr->header.stamp.toSec());
+    string response="";
+    if(!Tcw.empty())
+    {
+        for(int i=0;i<4;i++)
+    {
+        for(int j=0;j<4;j++)
+        {
+            ss << Tcw.at<float>(i,j);
+            ss >> res;
+            ss.clear(); 
+            response=response+res+",";
+        }
+    }
+    }
+    else
+    {
+        response="none";
+    }
+    tcp.Send(response);
+    tcp.clean();
+
     int state = mpSLAM->GetTrackingState();
     vector<ORB_SLAM2::MapPoint*> vMPs = mpSLAM->GetTrackedMapPoints();
     vector<cv::KeyPoint> vKeys = mpSLAM->GetTrackedKeyPointsUn();
-
+    
     cv::undistort(im,imu,K,DistCoef);
 
     if(bRGB)

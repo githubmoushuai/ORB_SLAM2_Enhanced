@@ -73,9 +73,10 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
     if (!mapfilen.empty())
     {
         mapfile = (string)mapfilen;
+        
     }
 #endif
-
+    cout<<"有"<<mapfile<<endl;
     //Load ORB Vocabulary
     cout << endl << "Loading ORB Vocabulary. This could take a while..." << endl;
 

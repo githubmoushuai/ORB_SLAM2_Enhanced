@@ -35,7 +35,7 @@
 #include "KeyFrameDatabase.h"
 #include "ORBVocabulary.h"
 #include "Viewer.h"
-
+#define FUNC_MAP_SAVE_LOAD
 #ifdef FUNC_MAP_SAVE_LOAD
 #include "BoostArchiver.h"
 // for map file io

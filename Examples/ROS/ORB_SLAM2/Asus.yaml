@@ -5,10 +5,10 @@
 #--------------------------------------------------------------------------------------------
 
 # Camera calibration and distortion parameters (OpenCV) 
-Camera.fx: 535.4
-Camera.fy: 539.2
-Camera.cx: 320.1
-Camera.cy: 247.6
+Camera.fx: 445
+Camera.fy: 445
+Camera.cx: 320
+Camera.cy: 240
 
 Camera.k1: 0.0
 Camera.k2: 0.0
@@ -66,4 +66,4 @@ Viewer.ViewpointX: 0
 Viewer.ViewpointY: -0.7
 Viewer.ViewpointZ: -1.8
 Viewer.ViewpointF: 500
-
+Map.mapfile: /home/ubuntu/a.map

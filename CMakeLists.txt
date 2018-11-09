@@ -77,6 +77,7 @@ ${Pangolin_LIBRARIES}
 ${PROJECT_SOURCE_DIR}/Thirdparty/DBoW2/lib/libDBoW2.so
 ${PROJECT_SOURCE_DIR}/Thirdparty/g2o/lib/libg2o.so
 )
+SET(USE_MAP_SAVE_LOAD 1)
 if (NOT DEFINED USE_MAP_SAVE_LOAD)
     set(USE_MAP_SAVE_LOAD OFF)
 endif()
